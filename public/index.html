@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusRide — Share the Ride, Split the Cost</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+
+<!-- ===== DYNAMIC BACKGROUND ===== -->
+<div class="dynamic-bg">
+  <div class="blob-wrapper blob-w-1"><div class="blob blob-1"></div></div>
+  <div class="blob-wrapper blob-w-2"><div class="blob blob-2"></div></div>
+  <div class="blob-wrapper blob-w-3"><div class="blob blob-3"></div></div>
+</div>
+</head>
+<body>
+
+<!-- ===== SPLASH SCREEN ===== -->
+<div id="splash">
+  <div class="splash-content">
+    <div class="road-scene">
+      <div class="speed-lines">
+        <div class="speed-line"></div>
+        <div class="speed-line"></div>
+        <div class="speed-line"></div>
+      </div>
+      <div class="bike-container">
+        <svg class="bike-svg" viewBox="0 0 200 120" fill="none">
+          <!-- Back Wheel -->
+          <circle cx="45" cy="90" r="22" stroke="#4F46E5" stroke-width="4" fill="none"/>
+          <circle cx="45" cy="90" r="4" fill="#4F46E5"/>
+          <!-- Front Wheel -->
+          <circle cx="155" cy="90" r="22" stroke="#4F46E5" stroke-width="4" fill="none"/>
+          <circle cx="155" cy="90" r="4" fill="#4F46E5"/>
+          <!-- Frame -->
+          <path d="M45 90 L85 55 L130 55 L155 90" stroke="#334155" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M85 55 L75 90" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+          <!-- Seat -->
+          <rect x="75" y="48" width="22" height="6" rx="3" fill="#334155"/>
+          <!-- Handlebar -->
+          <path d="M130 55 L140 42 L150 40" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <line x1="143" y1="38" x2="157" y2="42" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+          <!-- Engine -->
+          <rect x="75" y="68" width="30" height="18" rx="4" fill="#4F46E5" opacity="0.15"/>
+          <rect x="80" y="72" width="20" height="10" rx="2" fill="#4F46E5" opacity="0.3"/>
+          <!-- Exhaust -->
+          <path d="M45 80 L30 75 L25 78" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+          <!-- Rider -->
+          <circle cx="95" cy="28" r="10" fill="#334155"/>
+          <path d="M95 38 L95 55" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+          <path d="M95 45 L130 52" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+          <path d="M95 55 L80 70" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+          <!-- Passenger -->
+          <circle cx="78" cy="30" r="9" fill="#FB7185"/>
+          <path d="M78 39 L78 52" stroke="#FB7185" stroke-width="3" stroke-linecap="round"/>
+          <path d="M78 45 L70 55" stroke="#FB7185" stroke-width="3" stroke-linecap="round"/>
+          <path d="M78 52 L70 68" stroke="#FB7185" stroke-width="3" stroke-linecap="round"/>
+          <!-- Backpack on passenger -->
+          <rect x="72" y="38" width="6" height="10" rx="2" fill="#FB7185" opacity="0.6"/>
+          <!-- Headlight -->
+          <circle cx="158" cy="78" r="3" fill="#F59E0B"/>
+        </svg>
+      </div>
+      <div class="dust-particles">
+        <div class="dust"></div>
+        <div class="dust"></div>
+        <div class="dust"></div>
+      </div>
+      <div class="road"></div>
+      <div class="road-dashes"></div>
+    </div>
+    <div class="splash-logo">CampusRide</div>
+    <div class="splash-tagline">Together to College</div>
+    <div class="progress-track">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== ABOUT US MODAL ===== -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>About CampusRide</h2>
+      <button class="modal-close" onclick="closeAbout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="about-section">
+        <h3>🎯 The Problem</h3>
+        <p>College students struggle daily — spending too much on petrol, waiting endlessly for crowded public buses, and arriving late to classes. The stress of commuting alone eats into their time, money, and energy.</p>
+      </div>
+      <div class="about-section coral-border">
+        <h3>💡 Our Solution</h3>
+        <p>Students travelling the same route to the same college can team up! A <strong>Rider</strong> (who owns a bike/scooter) offers their extra seat, and a <strong>Passenger</strong> finds that ride through CampusRide. Two people, one bike, shared costs — simple.</p>
+      </div>
+      <div class="about-section green-border">
+        <h3>⚡ How It Works</h3>
+        <p>Riders post their route to college. Passengers search for matching rides. Our system matches routes, calculates the fair fare at ₹5/km (split between both), and connects students instantly. Save fuel, save money, never be late again.</p>
+      </div>
+      <div class="about-section">
+        <h3>🌍 Our Mission</h3>
+        <p>To make every college commute affordable, social, and sustainable — one shared ride at a time. Built by students, for students.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button class="nav-back" id="navBack" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <a class="nav-logo" onclick="showPage('landing')">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="10" fill="#4F46E5"/>
+          <path d="M12 26C12 22 16 18 20 14C24 18 28 22 28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <circle cx="14" cy="28" r="3" stroke="white" stroke-width="2"/>
+          <circle cx="26" cy="28" r="3" stroke="white" stroke-width="2"/>
+          <circle cx="20" cy="12" r="3" fill="#FB7185"/>
+        </svg>
+        <span>CampusRide</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-link hide-mobile" id="navHow" onclick="document.getElementById('howSection')?.scrollIntoView({behavior:'smooth'})">How It Works</button>
+      <button class="nav-link about-btn" onclick="openAbout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        About Us
+      </button>
+      <button class="nav-link login-btn" id="navLogin" onclick="showPage('register')">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- ===== PAGE: LANDING ===== -->
+  <div class="page active" id="page-landing">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Now live for colleges
+      </div>
+      <h1>Share the Ride,<br><span class="gradient">Split the Cost</span></h1>
+      <p class="hero-sub">College students on the same route, one bike, shared fare. Save money, skip the bus, never be late to class again.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" onclick="showPage('register')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          Get Started Free
+        </button>
+        <button class="btn btn-outline btn-lg" onclick="openAbout()">
+          Learn More
+        </button>
+      </div>
+
+      <!-- Hero Illustration -->
+      <div class="hero-illustration">
+        <div class="hero-visual">
+          <div class="hero-stats">
+            <div class="stat-card">
+              <div class="stat-icon indigo">🏍️</div>
+              <div class="stat-value">500+</div>
+              <div class="stat-label">Rides Shared</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon coral">💰</div>
+              <div class="stat-value">₹2.5L</div>
+              <div class="stat-label">Money Saved</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">🎓</div>
+              <div class="stat-value">1200+</div>
+              <div class="stat-label">Students Joined</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="featuresSection">
+      <div class="section-label">✨ Features</div>
+      <div class="section-title">Everything you need for<br>smarter commutes</div>
+      <p class="section-sub">Built specifically for college students who want to save money and time on their daily ride to campus.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--indigo-bg)">🔐</div>
+          <h3>Quick Signup</h3>
+          <p>Register with just your name, phone & college details. No passwords, no hassle — get riding in 30 seconds.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--coral-bg)">🗺️</div>
+          <h3>Smart Route Match</h3>
+          <p>Set your source & destination. Our system matches you with riders or passengers on the same route automatically.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--green-bg)">💸</div>
+          <h3>Auto Fare Split</h3>
+          <p>Fair pricing at ₹5/km, automatically calculated and split between rider & passenger. Transparent, always.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--amber-bg)">⚡</div>
+          <h3>Instant Booking</h3>
+          <p>Find a matching ride and book your seat instantly. Real-time availability, zero waiting, zero confusion.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="howSection" style="background: var(--bg-alt); max-width: 100%; padding-left: calc((100% - 1100px)/2 + 24px); padding-right: calc((100% - 1100px)/2 + 24px);">
+      <div style="max-width: 1100px;">
+        <div class="section-label">🛤️ Process</div>
+        <div class="section-title">How CampusRide works</div>
+        <p class="section-sub">Three simple steps to your next shared ride.</p>
+
+        <div class="steps-container">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Sign Up</h3>
+            <p>Create your profile with basic details. If you have a bike, add your vehicle info.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Choose Your Role</h3>
+            <p>Select Rider if you have a bike, or Passenger if you're looking for a ride to college.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Set Route & Go</h3>
+            <p>Enter your source and destination. Get matched, see the fare, and hit the road together!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="cta-box">
+        <h2>Ready to share your ride?</h2>
+        <p>Join hundreds of students already saving money and time on their college commute.</p>
+        <button class="btn btn-lg" onclick="showPage('register')">
+          Start Riding Today →
+        </button>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-brand">CampusRide</div>
+      <p>Built with ❤️ for college students everywhere.</p>
+      <div class="footer-links">
+        <a href="#" onclick="event.preventDefault(); openAbout()">About</a>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('featuresSection').scrollIntoView({behavior:'smooth'})">Features</a>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('howSection').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      </div>
+      <p style="margin-top:16px; font-size:0.78rem; opacity:0.6;">© 2025 CampusRide. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- ===== PAGE: REGISTER ===== -->
+  <div class="page" id="page-register">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Create Your Account</h2>
+        <p>Join CampusRide in seconds</p>
+      </div>
+      <div class="form-card">
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label>Full Name</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="regName" placeholder="Enter your full name" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <input type="tel" id="regPhone" placeholder="10-digit phone number" required pattern="[0-9]{10}" maxlength="10">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input type="email" id="regEmail" placeholder="you@college.edu" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="regAddress" placeholder="Street address" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="regCity" placeholder="City" required>
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" id="regState" placeholder="State" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Pincode</label>
+            <input type="text" id="regPincode" placeholder="6-digit pincode" required pattern="[0-9]{6}" maxlength="6" style="max-width:200px;">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">
+            Continue →
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: VEHICLE INFO ===== -->
+  <div class="page" id="page-vehicle">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Do you have a vehicle?</h2>
+        <p>This helps us know if you can offer rides</p>
+      </div>
+      <div class="form-card">
+        <div class="toggle-container" id="vehicleToggle">
+          <div class="toggle-option active" data-value="yes" onclick="toggleVehicle('yes')">✅ Yes, I do</div>
+          <div class="toggle-option" data-value="no" onclick="toggleVehicle('no')">❌ No vehicle</div>
+        </div>
+
+        <div id="vehicleFields">
+          <div class="form-group">
+            <label>Vehicle Type</label>
+            <div class="toggle-container" id="vehicleType">
+              <div class="toggle-option active" data-value="bike" onclick="toggleVType('bike')">🏍️ Bike</div>
+              <div class="toggle-option" data-value="scooter" onclick="toggleVType('scooter')">🛵 Scooter</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Number Plate</label>
+            <input type="text" id="vPlate" placeholder="e.g. TN 01 AB 1234" style="text-transform:uppercase;">
+          </div>
+          <div class="form-group">
+            <label>License Number</label>
+            <input type="text" id="vLicense" placeholder="e.g. TN0120230012345" style="text-transform:uppercase;">
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="handleVehicle()">
+          Continue →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: ROLE SELECTION ===== -->
+  <div class="page" id="page-role">
+    <div class="role-container">
+      <div class="role-header">
+        <h2>How are you travelling today?</h2>
+        <p>Choose your role for this ride</p>
+      </div>
+      <div class="role-cards">
+        <div class="role-card" id="roleRider" onclick="selectRole('rider')">
+          <div class="role-icon">🏍️</div>
+          <h3>Rider</h3>
+          <p>I have a bike & can offer a seat to someone on my route.</p>
+        </div>
+        <div class="role-card" id="rolePassenger" onclick="selectRole('passenger')">
+          <div class="role-icon">🎒</div>
+          <h3>Passenger</h3>
+          <p>I need a ride to college from someone going my way.</p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" style="margin-top:32px;" id="roleContinue" onclick="handleRole()" disabled>
+        Continue →
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: RIDER MAP ===== -->
+  <div class="page" id="page-riderMap">
+    <div class="map-sidebar">
+      <div class="form-header" style="margin-bottom:20px;">
+        <h2>Set Your Route</h2>
+        <p>Where are you riding from & to?</p>
+      </div>
+      <div class="form-card" style="margin-bottom:16px;">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>📍 Pickup (Source)</label>
+          <input type="text" id="riderSource" placeholder="e.g. Anna Nagar, Chennai">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>🏁 Drop (Destination)</label>
+          <input type="text" id="riderDest" placeholder="e.g. SRM College, Kattankulathur">
+        </div>
+      </div>
+      <div id="riderMapDisplay" style="width:100%;height:280px;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--slate-200);margin-bottom:16px;background:var(--slate-100);"></div>
+      <div class="route-summary" id="riderRouteSummary">
+        <div class="route-detail">
+          <div class="icon" style="background:var(--indigo-bg)">📏</div>
+          <div><div class="label">Distance</div><div class="value" id="riderDistance">—</div></div>
+        </div>
+        <div class="route-detail">
+          <div class="icon" style="background:var(--green-bg)">⏱️</div>
+          <div><div class="label">Est. Time</div><div class="value" id="riderTime">—</div></div>
+        </div>
+        <div class="route-detail">
+          <div class="icon" style="background:var(--amber-bg)">💰</div>
+          <div><div class="label">Fare (₹5/km)</div><div class="value" id="riderFare">—</div></div>
+        </div>
+      </div>
+      <div class="fare-card" id="riderFareCard">
+        <div class="fare-row"><span class="fare-label">Base fare</span><span id="rBaseFare">—</span></div>
+        <div class="fare-row"><span class="fare-label">Rate</span><span>₹5/km</span></div>
+        <div class="fare-row total"><span>You earn</span><span id="rEarnFare">—</span></div>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:16px;" id="riderGoBtn" onclick="riderPostRide()" disabled>
+        Post This Ride →
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: PASSENGER MAP ===== -->
+  <div class="page" id="page-passengerMap">
+    <div class="map-sidebar">
+      <div class="form-header" style="margin-bottom:20px;">
+        <h2>Find Your Ride</h2>
+        <p>Where do you need to go?</p>
+      </div>
+      <div class="form-card" style="margin-bottom:16px;">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>📍 Pickup Location</label>
+          <input type="text" id="passSource" placeholder="e.g. T. Nagar, Chennai">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>🏁 Drop Location</label>
+          <input type="text" id="passDest" placeholder="e.g. SRM College, Kattankulathur">
+        </div>
+      </div>
+      <div id="passMapDisplay" style="width:100%;height:280px;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--slate-200);margin-bottom:16px;background:var(--slate-100);"></div>
+      <div class="route-summary" id="passRouteSummary">
+        <div class="route-detail">
+          <div class="icon" style="background:var(--indigo-bg)">📏</div>
+          <div><div class="label">Distance</div><div class="value" id="passDistance">—</div></div>
+        </div>
+        <div class="route-detail">
+          <div class="icon" style="background:var(--green-bg)">⏱️</div>
+          <div><div class="label">Est. Time</div><div class="value" id="passTime">—</div></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:16px;" id="passSearchBtn" onclick="searchRides()" disabled>
+        🔍 Search Available Rides
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: RIDE RESULTS ===== -->
+  <div class="page" id="page-results">
+    <div class="match-container">
+      <div class="match-header">
+        <h2>🎯 Matching Rides Found</h2>
+      </div>
+      <div id="rideResults"></div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: RIDE SUCCESS (RIDER) ===== -->
+  <div class="page" id="page-riderSuccess">
+    <div class="success-container">
+      <div class="success-icon">✅</div>
+      <h2>Ride Posted Successfully!</h2>
+      <p>Your ride is now visible to passengers on a matching route. You'll be notified when someone books a seat.</p>
+      <div class="booking-summary" id="riderBookingSummary"></div>
+      <button class="btn btn-primary btn-lg" onclick="showPage('landing')">Back to Home</button>
+    </div>
+  </div>
+
+  <!-- ===== PAGE: BOOKING SUCCESS (PASSENGER) ===== -->
+  <div class="page" id="page-bookingSuccess">
+    <div class="success-container">
+      <div class="success-icon">🎉</div>
+      <h2>Ride Booked!</h2>
+      <p>You've successfully booked a seat. Meet your rider at the pickup point and enjoy the ride to college!</p>
+      <div class="booking-summary" id="passBookingSummary"></div>
+      <button class="btn btn-primary btn-lg" onclick="showPage('landing')">Back to Home</button>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
